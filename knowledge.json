@@ -3,7 +3,7 @@
     {
       "id": 1,
       "question": "What is your name?",
-      "keywords": ["name", "who are you", "introduce", "what's your name"],
+      "keywords": ["name", "who are you", "introduce", "what's your name", "who is awais", "what is awais", "tell me about awais", "who is muhammad awais", "what is muhammad awais asad"],
       "answer": "My name is Muhammad Awais Asad. You can call me Awais. I'm a Full Stack Developer specializing in Laravel, Vue.js, Node.js, AI integrations and modern web technologies."
     },
     {

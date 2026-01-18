@@ -62,34 +62,62 @@ function searchKnowledgeBase(userMessage) {
     .replace(/\bexpert\b/g, 'expertise specialization skills')
     .replace(/\bwhat can you do\b/g, 'skills technologies');
   
-  // Try exact keyword matches first
+  // Extract meaningful search terms (words longer than 2 characters)
+  const words = lowerMessage.split(/\s+/).filter(term => term.length > 2);
+  
+  // Try exact keyword matches first (most specific)
   for (const item of knowledgeBase.items) {
-    // Check if any keyword matches
-    const matchedKeyword = item.keywords.some(keyword => 
-      lowerMessage.includes(keyword.toLowerCase()) || normalizedMessage.includes(keyword.toLowerCase())
-    );
+    // Check if any keyword matches (whole word match, not substring)
+    const matchedKeyword = item.keywords.some(keyword => {
+      const lowerKeyword = keyword.toLowerCase();
+      // Use word boundary regex to avoid substring matches (e.g., "awais" matching "ai")
+      const keywordPattern = new RegExp(`\\b${lowerKeyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+      return keywordPattern.test(lowerMessage) || keywordPattern.test(normalizedMessage);
+    });
     
     if (matchedKeyword) {
       return item.answer;
     }
     
-    // Also check if the question itself matches
+    // Also check if the question itself matches (whole phrase or word)
     if (item.question) {
       const lowerQuestion = item.question.toLowerCase();
-      if (lowerMessage.includes(lowerQuestion) || normalizedMessage.includes(lowerQuestion)) {
+      const questionWords = lowerQuestion.split(/\s+/);
+      // Check if all significant words from question are in the message
+      const allQuestionWordsMatch = questionWords.filter(w => w.length > 2)
+        .every(qWord => lowerMessage.includes(qWord));
+      
+      if (allQuestionWordsMatch && questionWords.length > 2) {
+        return item.answer;
+      }
+      
+      // Also check for direct phrase match
+      if (lowerMessage.includes(lowerQuestion) && lowerQuestion.length > 10) {
         return item.answer;
       }
     }
   }
   
-  // Try fuzzy matching on answer content
-  const searchTerms = normalizedMessage.split(/\s+/).filter(term => term.length > 3);
-  for (const item of knowledgeBase.items) {
-    const lowerAnswer = item.answer.toLowerCase();
-    const matches = searchTerms.filter(term => lowerAnswer.includes(term));
-    // If multiple search terms match the answer, likely relevant
-    if (matches.length >= Math.min(2, searchTerms.length)) {
-      return item.answer;
+  // More strict fuzzy matching - only match whole words, not substrings
+  // Only if no exact match found
+  const searchTerms = words.filter(term => term.length > 3); // Only words longer than 3 chars
+  
+  if (searchTerms.length > 0) {
+    for (const item of knowledgeBase.items) {
+      const lowerAnswer = item.answer.toLowerCase();
+      
+      // Match whole words only (use word boundaries to avoid substring matches)
+      const matches = searchTerms.filter(term => {
+        // Use word boundary to match whole words only
+        const termPattern = new RegExp(`\\b${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+        return termPattern.test(lowerAnswer);
+      });
+      
+      // Require at least 2 matching words AND at least 50% match rate
+      const matchRate = matches.length / searchTerms.length;
+      if (matches.length >= 2 && matchRate >= 0.5) {
+        return item.answer;
+      }
     }
   }
   

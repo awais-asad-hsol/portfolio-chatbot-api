@@ -1,6 +1,6 @@
 /**
- * Root endpoint for API health check and info
- * Accessible at: https://your-domain.vercel.app/api
+ * API information endpoint
+ * Accessible at: https://your-domain.vercel.app/api/info or /api
  */
 
 export default async function handler(req, res) {
@@ -8,13 +8,14 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Content-Type', 'application/json');
 
   // Handle OPTIONS request for CORS preflight
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
-  // Only allow GET requests for root endpoint
+  // Only allow GET requests for this endpoint
   if (req.method !== 'GET') {
     return res.status(405).json({
       error: 'Method not allowed. Use GET.',
@@ -25,15 +26,25 @@ export default async function handler(req, res) {
     message: 'Portfolio Chatbot API is running',
     version: '1.0.0',
     endpoints: {
-      chat: '/api/chat',
-      method: 'POST',
-      description: 'Send a message to the chatbot',
-      example: {
+      chat: {
         url: '/api/chat',
         method: 'POST',
-        body: {
-          message: 'What is your name?'
+        description: 'Send a message to the chatbot',
+        example: {
+          body: {
+            message: 'What is your name?'
+          }
         }
+      },
+      health: {
+        url: '/api/health',
+        method: 'GET',
+        description: 'Health check endpoint'
+      },
+      info: {
+        url: '/api/info',
+        method: 'GET',
+        description: 'API information endpoint'
       }
     },
     health: 'ok',

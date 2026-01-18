@@ -25,7 +25,20 @@ Create a `.env.local` file in the root directory:
 
 ```bash
 GEMINI_API_KEY=your_gemini_api_key_here
+GEMINI_MODEL=gemini-pro  # Optional: gemini-pro, gemini-1.5-flash, or gemini-1.5-pro
+GEMINI_API_VERSION=v1beta  # Optional: v1beta (default) or v1
 ```
+
+**Note:** The API will automatically try multiple models if one fails. It will:
+1. Try newer models first (gemini-2.5-flash, gemini-3-flash-preview, etc.)
+2. Fall back to older models if needed
+3. Automatically list and try available models if all predefined ones fail
+
+Common working models (2024):
+- `gemini-2.5-flash` (recommended, fast and capable)
+- `gemini-2.5-flash-lite` (lightweight)
+- `gemini-3-flash-preview` or `gemini-3-pro-preview` (latest preview models)
+- `gemini-1.5-flash` or `gemini-1.5-pro` (older but stable)
 
 **Getting a Gemini API Key:**
 1. Visit [Google AI Studio](https://makersuite.google.com/app/apikey)
@@ -40,10 +53,13 @@ GEMINI_API_KEY=your_gemini_api_key_here
 Run the development server:
 
 ```bash
-npm run dev
+npm install  # Install Express and other dependencies
+npm run dev  # Start local server
 ```
 
 The API will be available at `http://localhost:3000/api/chat`
+
+**Note:** The dev server uses Express for local testing. For production, it will be deployed as a Vercel serverless function.
 
 ### 4. Deploy to Vercel
 
@@ -62,6 +78,32 @@ The API will be available at `http://localhost:3000/api/chat`
    - Navigate to "Environment Variables"
    - Add `GEMINI_API_KEY` with your API key value
    - Redeploy if needed
+
+## Local Testing
+
+### Quick Start
+
+1. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+2. **Create `.env.local` file:**
+   ```bash
+   GEMINI_API_KEY=your_actual_gemini_api_key_here
+   ```
+
+3. **Start development server:**
+   ```bash
+   npm run dev
+   ```
+
+4. **Test with Postman or cURL:**
+   - URL: `http://localhost:3000/api/chat`
+   - Method: `POST`
+   - Body: `{"message": "What is your name?"}`
+
+📖 **See [TESTING.md](TESTING.md) for detailed Postman testing instructions.**
 
 ## API Usage
 

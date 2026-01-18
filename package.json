@@ -4,7 +4,9 @@
   "description": "Serverless API backend for portfolio chatbot using Vercel",
   "main": "api/chat.js",
   "scripts": {
-    "dev": "vercel dev",
+    "dev": "node server.js",
+    "start": "node server.js",
+    "vercel:dev": "vercel dev",
     "deploy": "vercel",
     "deploy:prod": "vercel --prod"
   },
@@ -17,11 +19,17 @@
   ],
   "author": "",
   "license": "MIT",
-  "dependencies": {},
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "pdf-parse": "^1.1.1"
+  },
   "devDependencies": {
     "vercel": "^34.0.0"
   },
   "engines": {
     "node": ">=18.0.0"
-  }
+  },
+  "type": "module"
 }

@@ -4,7 +4,7 @@
       "id": 1,
       "question": "What is your name?",
       "keywords": ["name", "who are you", "introduce", "what's your name"],
-      "answer": "My name is Muhammad Awais Asad. You can call me M Awais Asad. I'm a Full Stack Developer specializing in Laravel, Node.js, and modern web technologies."
+      "answer": "My name is Muhammad Awais Asad. You can call me Awais. I'm a Full Stack Developer specializing in Laravel, Vue.js, Node.js, AI integrations and modern web technologies."
     },
     {
       "id": 2,
@@ -161,6 +161,12 @@
       "question": "What is your specialization?",
       "keywords": ["specialization", "specialize", "expertise", "focus area", "main skills"],
       "answer": "I specialize in full-stack development with a focus on backend-centric systems. My expertise includes API design, authentication and authorization systems (including SSO), Laravel and Vue.js development, and integrating AI-powered features. I build scalable, secure, and production-ready applications."
+    },
+    {
+      "id": 28,
+      "question": "Tell me about your expertise",
+      "keywords": ["tell me about your expertise", "expertise", "your expertise", "what are you expert in", "tell me about expertise"],
+      "answer": "My expertise lies in full-stack development with a focus on backend-centric systems. I have 6+ years of experience building scalable and secure web applications. My key expertise includes: API design and development, authentication and authorization systems including SSO (Single Sign-On), Laravel and Vue.js development with Inertia.js, Node.js and Express.js backend development, AI-powered features integration (chatbots, automation workflows, AI agents), Database design and optimization with MySQL, and modern full-stack architectures. I specialize in building production-ready applications that are secure, scalable, and maintainable."
     }
   ]
 }

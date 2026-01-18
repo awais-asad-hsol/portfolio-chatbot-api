@@ -8,8 +8,8 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import pdfParse from 'pdf-parse';
 
-// Import rate limiter
-import { checkRateLimitForIP, getClientIP } from '../utils/rateLimiter.js';
+// Import rate limiter - use wrapper for Vercel compatibility
+import { checkRateLimitForIP, getClientIP } from './_rateLimiter.js';
 
 // Load knowledge base - using sync read since this runs at function initialization
 let knowledgeBase;
@@ -429,8 +429,8 @@ export default async function handler(req, res) {
 
   try {
     // Rate limiting check (for serverless functions)
-    const clientIP = getClientIP(req);
-    const rateLimitCheck = checkRateLimitForIP(clientIP);
+    const clientIP = await getClientIP(req);
+    const rateLimitCheck = await checkRateLimitForIP(clientIP);
     
     // Add rate limit headers
     const rateLimitPerMinute = parseInt(process.env.RATE_LIMIT_PER_MINUTE || '10');

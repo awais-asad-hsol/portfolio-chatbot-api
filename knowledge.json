@@ -1,0 +1,166 @@
+{
+  "items": [
+    {
+      "id": 1,
+      "question": "What is your name?",
+      "keywords": ["name", "who are you", "introduce", "what's your name"],
+      "answer": "My name is Muhammad Awais Asad. You can call me M Awais Asad. I'm a Full Stack Developer specializing in Laravel, Node.js, and modern web technologies."
+    },
+    {
+      "id": 2,
+      "question": "What is your email address?",
+      "keywords": ["email", "contact email", "email address", "mail", "e-mail"],
+      "answer": "My email address is awaisasad20@gmail.com. Feel free to reach out if you'd like to discuss projects or collaboration opportunities."
+    },
+    {
+      "id": 3,
+      "question": "What is your phone number?",
+      "keywords": ["phone", "phone number", "contact number", "mobile", "call", "telephone"],
+      "answer": "You can contact me at +92-332-4255688. I'm available for discussions about projects or potential collaborations."
+    },
+    {
+      "id": 4,
+      "question": "Where are you located?",
+      "keywords": ["location", "address", "where are you", "where do you live", "location", "city"],
+      "answer": "I'm located in Lahore, Pakistan. My address is Building no 88, Sector C, Askari 11, Lahore, Pakistan."
+    },
+    {
+      "id": 5,
+      "question": "What is your date of birth?",
+      "keywords": ["birthday", "date of birth", "age", "when were you born", "dob"],
+      "answer": "My date of birth is July 17, 1994."
+    },
+    {
+      "id": 6,
+      "question": "What do you do?",
+      "keywords": ["what do you do", "profession", "job", "occupation", "career", "role"],
+      "answer": "I'm a Full Stack Software Engineer with 6+ years of experience. I specialize in building scalable and secure web applications using technologies like Laravel, Vue.js, Node.js, and I also integrate AI-powered features such as chatbots and automation workflows."
+    },
+    {
+      "id": 7,
+      "question": "What are your skills?",
+      "keywords": ["skills", "technologies", "tech stack", "what can you do", "expertise", "technologies you know"],
+      "answer": "My technical skills include PHP, JavaScript, Laravel, Vue.js, Node.js, Express.js, Inertia.js, Alpine.js, AI integration, Bootstrap, HTML, CSS, Google Cloud Platform (GCP), MySQL, Sequelize, Redis, Git, and Docker. I focus on full-stack development with backend-centric systems."
+    },
+    {
+      "id": 8,
+      "question": "What programming languages do you know?",
+      "keywords": ["programming languages", "languages", "what languages", "coding languages"],
+      "answer": "I'm proficient in PHP and JavaScript, which are my primary programming languages. I use PHP for Laravel backend development and JavaScript for both frontend (Vue.js) and backend (Node.js) development."
+    },
+    {
+      "id": 9,
+      "question": "What frameworks do you use?",
+      "keywords": ["frameworks", "what frameworks", "laravel", "vue", "node", "express"],
+      "answer": "I work with Laravel (PHP framework), Vue.js and Inertia.js (frontend frameworks), Node.js and Express.js (JavaScript frameworks), Bootstrap (CSS framework), and Alpine.js. I'm experienced in building modern full-stack applications with these technologies."
+    },
+    {
+      "id": 10,
+      "question": "How many years of experience do you have?",
+      "keywords": ["experience", "years", "how long", "experience level", "professional experience"],
+      "answer": "I have 6+ years of professional experience as a full-stack software engineer, building scalable and secure web applications across diverse domains."
+    },
+    {
+      "id": 11,
+      "question": "What is your current position?",
+      "keywords": ["current job", "current position", "where do you work", "current role", "current company"],
+      "answer": "I'm currently working as a Senior Software Developer at Heuristic Sol Pvt Ltd in Lahore, since August 2022. I'm leading the development of Version 2 of a platform, working on SSO solutions, and building modern applications with Laravel, Vue.js, and Inertia.js."
+    },
+    {
+      "id": 12,
+      "question": "What companies have you worked for?",
+      "keywords": ["companies", "work history", "previous companies", "employers", "where have you worked"],
+      "answer": "I've worked at Heuristic Sol Pvt Ltd (Senior Software Developer, Aug 2022 - Present), TechOrix PVT LTD (Team Lead, Feb 2021 - Aug 2022), MST Developers (Full Stack Developer, June 2019 - Jan 2021), and Vroozi INC (Full Stack Developer Intern, Mar 2019 - May 2019), all based in Lahore, Pakistan."
+    },
+    {
+      "id": 13,
+      "question": "What is your education?",
+      "keywords": ["education", "degree", "university", "qualifications", "college", "studied"],
+      "answer": "I have a Bachelor of Science in Computer Science from University of The Punjab, Lahore (2014-2018). I also completed F.Sc. Pre-Engineering from Punjab College, Lahore (2012-2014) and Matriculation from Jinnah Grammar School, Lahore (2010-2012)."
+    },
+    {
+      "id": 14,
+      "question": "What is your university degree?",
+      "keywords": ["degree", "bachelor", "university degree", "college degree", "qualification"],
+      "answer": "I have a Bachelor of Science in Computer Science from University of The Punjab, Lahore, which I completed from 2014 to 2018."
+    },
+    {
+      "id": 15,
+      "question": "What projects have you worked on?",
+      "keywords": ["projects", "work", "applications built", "portfolio projects", "what have you built"],
+      "answer": "I've worked on various projects including E-KYC System (Backend Development), Chauffeur Taxi Booking System (Full Stack Development), POS System (Full Stack Development), SSO platform with multi-portal support, and many other web applications. I've completed 50+ projects serving over 100 happy clients."
+    },
+    {
+      "id": 16,
+      "question": "What services do you offer?",
+      "keywords": ["services", "what services", "what can you help with", "what do you offer"],
+      "answer": "I offer Full Stack Web Development, Backend Development, REST API creation, Third Party Integrations (payment gateways, social login, etc.), Database Management Systems (DBMS), and Product Strategy services."
+    },
+    {
+      "id": 17,
+      "question": "Do you do freelancing?",
+      "keywords": ["freelance", "freelancing", "available", "hire", "can you work", "freelancer"],
+      "answer": "Yes, I'm available for freelancing! With over 6 years of professional experience, I specialize in delivering high-quality web development services. Whether you need a complete project build or help meeting deadlines, I'm ready to assist. You can contact me at awaisasad20@gmail.com to discuss your project."
+    },
+    {
+      "id": 18,
+      "question": "What is your LinkedIn profile?",
+      "keywords": ["linkedin", "linkedin profile", "linkedin url", "social media"],
+      "answer": "You can find me on LinkedIn at https://www.linkedin.com/in/awais-asad/. You can also find me on GitHub at https://github.com/awais-asad-hsol, Facebook, and Instagram."
+    },
+    {
+      "id": 19,
+      "question": "What databases do you work with?",
+      "keywords": ["database", "databases", "mysql", "dbms", "data storage"],
+      "answer": "I work with MySQL as my primary database system. I'm experienced in database design, optimization, and using Sequelize as an ORM. I also work with Redis for caching and session management."
+    },
+    {
+      "id": 20,
+      "question": "Do you work with AI?",
+      "keywords": ["ai", "artificial intelligence", "machine learning", "chatbots", "ai integration"],
+      "answer": "Yes, I have hands-on experience integrating AI-powered features such as chatbots, automation workflows, and AI agents into applications. I continuously apply current engineering practices to build future-ready software solutions."
+    },
+    {
+      "id": 21,
+      "question": "What cloud platforms do you use?",
+      "keywords": ["cloud", "aws", "azure", "gcp", "google cloud", "deployment"],
+      "answer": "I work with Google Cloud Platform (GCP) for cloud services and deployment. I also have experience with Docker for containerization."
+    },
+    {
+      "id": 22,
+      "question": "What is your GitHub profile?",
+      "keywords": ["github", "git", "repository", "code", "github profile"],
+      "answer": "You can find my GitHub profile at https://github.com/awais-asad-hsol. I use Git for version control and have experience with various Git workflows."
+    },
+    {
+      "id": 23,
+      "question": "What backend technologies do you use?",
+      "keywords": ["backend", "server", "api", "backend development", "server-side"],
+      "answer": "I specialize in backend development using PHP with Laravel framework and JavaScript with Node.js and Express.js. I build secure RESTful APIs, authentication systems including SSO, and scalable backend architectures."
+    },
+    {
+      "id": 24,
+      "question": "What frontend technologies do you use?",
+      "keywords": ["frontend", "client-side", "ui", "user interface", "frontend development"],
+      "answer": "I work with Vue.js and Inertia.js for building modern, reactive frontends. I also use Alpine.js for lightweight interactivity, Bootstrap for styling, and traditional HTML/CSS. I focus on creating seamless SPA-like experiences."
+    },
+    {
+      "id": 25,
+      "question": "How can I hire you?",
+      "keywords": ["hire", "hire you", "work together", "collaborate", "project", "contract"],
+      "answer": "I'm available for freelancing and collaboration! You can reach out to me via email at awaisasad20@gmail.com or call me at +92-332-4255688. I'd be happy to discuss your project requirements and how I can help you achieve your goals."
+    },
+    {
+      "id": 26,
+      "question": "How many projects have you completed?",
+      "keywords": ["how many projects", "project count", "completed projects", "portfolio size"],
+      "answer": "I've completed 50+ projects and served over 100 happy clients throughout my 6+ years of professional experience."
+    },
+    {
+      "id": 27,
+      "question": "What is your specialization?",
+      "keywords": ["specialization", "specialize", "expertise", "focus area", "main skills"],
+      "answer": "I specialize in full-stack development with a focus on backend-centric systems. My expertise includes API design, authentication and authorization systems (including SSO), Laravel and Vue.js development, and integrating AI-powered features. I build scalable, secure, and production-ready applications."
+    }
+  ]
+}

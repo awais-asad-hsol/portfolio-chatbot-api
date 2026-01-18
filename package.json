@@ -1,0 +1,27 @@
+{
+  "name": "portfolio-chatbot-api",
+  "version": "1.0.0",
+  "description": "Serverless API backend for portfolio chatbot using Vercel",
+  "main": "api/chat.js",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel",
+    "deploy:prod": "vercel --prod"
+  },
+  "keywords": [
+    "vercel",
+    "serverless",
+    "api",
+    "chatbot",
+    "gemini"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "vercel": "^34.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

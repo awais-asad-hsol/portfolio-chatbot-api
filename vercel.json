@@ -11,6 +11,10 @@
     "api/health.js": {
       "memory": 512,
       "maxDuration": 10
+    },
+    "api/index.js": {
+      "memory": 512,
+      "maxDuration": 10
     }
   },
   "rewrites": [
@@ -22,23 +26,5 @@
       "source": "/",
       "destination": "/api/index"
     }
-  ],
-  "functions": {
-    "api/chat.js": {
-      "memory": 1024,
-      "maxDuration": 30
-    },
-    "api/info.js": {
-      "memory": 512,
-      "maxDuration": 10
-    },
-    "api/health.js": {
-      "memory": 512,
-      "maxDuration": 10
-    },
-    "api/index.js": {
-      "memory": 512,
-      "maxDuration": 10
-    }
-  }
+  ]
 }

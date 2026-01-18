@@ -8,6 +8,9 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import pdfParse from 'pdf-parse';
 
+// Import rate limiter
+import { checkRateLimitForIP, getClientIP } from '../utils/rateLimiter.js';
+
 // Load knowledge base - using sync read since this runs at function initialization
 let knowledgeBase;
 try {
@@ -425,12 +428,42 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Rate limiting check (for serverless functions)
+    const clientIP = getClientIP(req);
+    const rateLimitCheck = checkRateLimitForIP(clientIP);
+    
+    // Add rate limit headers
+    const rateLimitPerMinute = parseInt(process.env.RATE_LIMIT_PER_MINUTE || '10');
+    const rateLimitPerHour = parseInt(process.env.RATE_LIMIT_PER_HOUR || '60');
+    res.setHeader('X-RateLimit-Limit-Minute', rateLimitPerMinute);
+    res.setHeader('X-RateLimit-Limit-Hour', rateLimitPerHour);
+    res.setHeader('X-RateLimit-Remaining', rateLimitCheck.remaining);
+    res.setHeader('X-RateLimit-Reset', Math.floor(rateLimitCheck.resetAt.getTime() / 1000));
+    
+    if (!rateLimitCheck.allowed) {
+      console.warn(`Rate limit exceeded for IP: ${clientIP}`);
+      return res.status(429).json({
+        error: 'Too Many Requests',
+        message: rateLimitCheck.message,
+        retryAfter: Math.ceil((rateLimitCheck.resetAt.getTime() - Date.now()) / 1000),
+      });
+    }
+    
     // Validate request body
     const { message } = req.body;
 
     if (!message || typeof message !== 'string' || message.trim().length === 0) {
       return res.status(400).json({
         error: 'Invalid request. "message" field is required and must be a non-empty string.',
+      });
+    }
+    
+    // Additional validation: check message length to prevent abuse
+    const MAX_MESSAGE_LENGTH = parseInt(process.env.MAX_MESSAGE_LENGTH || '1000');
+    if (message.length > MAX_MESSAGE_LENGTH) {
+      return res.status(400).json({
+        error: 'Invalid request. Message is too long.',
+        message: `Maximum message length is ${MAX_MESSAGE_LENGTH} characters.`,
       });
     }
 

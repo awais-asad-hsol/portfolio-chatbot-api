@@ -10,6 +10,9 @@ A serverless backend API for a portfolio chatbot, deployed on Vercel. This API c
 - ✅ Secure environment variable handling
 - ✅ CORS enabled for frontend integration
 - ✅ Clean JSON response format
+- ✅ **Rate limiting & security** - IP-based request limiting to prevent abuse
+- ✅ **CV search** - Intelligent search through resume PDF
+- ✅ **Smart question detection** - Only answers questions about Awais
 
 ## Setup
 
@@ -27,6 +30,12 @@ Create a `.env.local` file in the root directory:
 GEMINI_API_KEY=your_gemini_api_key_here
 GEMINI_MODEL=gemini-pro  # Optional: gemini-pro, gemini-1.5-flash, or gemini-1.5-pro
 GEMINI_API_VERSION=v1beta  # Optional: v1beta (default) or v1
+
+# Rate Limiting Configuration (Optional)
+RATE_LIMIT_PER_MINUTE=10  # Max requests per minute per IP (default: 10)
+RATE_LIMIT_PER_HOUR=60    # Max requests per hour per IP (default: 60)
+RATE_LIMIT_BLOCK_DURATION=600000  # Block duration in ms after limit exceeded (default: 10 minutes)
+MAX_MESSAGE_LENGTH=1000   # Maximum message length in characters (default: 1000)
 ```
 
 **Note:** The API will automatically try multiple models if one fails. It will:

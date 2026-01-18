@@ -7,6 +7,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import handler from './api/chat.js';
+import { rateLimitMiddleware } from './utils/rateLimiter.js';
 
 // Load environment variables
 dotenv.config({ path: '.env.local' });
@@ -17,6 +18,9 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Rate limiting - apply to all routes
+app.use(rateLimitMiddleware);
 
 // Convert Express req/res to Vercel format and handle response
 async function handleRequest(req, res) {

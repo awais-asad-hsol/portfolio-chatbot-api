@@ -16,15 +16,5 @@
       "memory": 512,
       "maxDuration": 10
     }
-  },
-  "rewrites": [
-    {
-      "source": "/api",
-      "destination": "/api/info"
-    },
-    {
-      "source": "/",
-      "destination": "/api/index"
-    }
-  ]
+  }
 }

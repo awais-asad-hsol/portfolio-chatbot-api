@@ -397,13 +397,17 @@ async function callGeminiAPI(userMessage, apiKey, cvContext = null) {
     }
     
     lastError = result;
-    
-    // If it's not a 404 (model not found), don't try other models
-    if (result.status && result.status !== 404) {
+
+    // 404 = model not found, 503 = overloaded, 429 = rate limited — try next model
+    // Any other error (401 bad key, 400 bad request) = stop immediately
+    const retryableStatus = [404, 429, 503];
+    if (result.status && !retryableStatus.includes(result.status)) {
+      console.error(`=== GEMINI: Non-retryable error ${result.status}, stopping ===`);
       throw new Error(
         `Gemini API error: ${result.status}. ${JSON.stringify(result.error)}`
       );
     }
+    console.log(`=== GEMINI: Status ${result.status} — trying next model... ===`);
   }
 
   // If all attempts failed, try to list available models

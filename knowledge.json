@@ -33,7 +33,7 @@
     {
       "id": 6,
       "question": "What do you do?",
-      "keywords": ["what do you do", "profession", "job", "occupation", "career", "role"],
+      "keywords": ["what do you do", "profession", "occupation", "what is your job", "what do you work as", "what is your profession"],
       "answer": "I'm a Full Stack Software Engineer with 6+ years of experience. I specialize in building scalable and secure web applications using technologies like Laravel, Vue.js, Node.js, and I also integrate AI-powered features such as chatbots and automation workflows."
     },
     {

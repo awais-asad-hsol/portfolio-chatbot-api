@@ -551,24 +551,30 @@ ${cvContent}
 
 User Question: """${sanitizeForPrompt(message)}"""`;
 
-    console.log('Sending full CV to Gemini...');
+    console.log('=== GEMINI: Sending request to Gemini API ===');
+    console.log('User message:', message);
     try {
       const geminiResponse = await callGeminiAPI(message, apiKey, cvPrompt);
 
+      console.log('=== GEMINI: Response received ===');
+      console.log('Raw response:', geminiResponse);
+
       // If Gemini couldn't find the answer in the CV, return fallback
       if (!geminiResponse || geminiResponse.trim() === 'ANSWER_NOT_FOUND') {
+        console.log('=== GEMINI: Returned ANSWER_NOT_FOUND — using fallback ===');
         return res.status(200).json({
           reply: "I'm a chatbot designed to answer questions about Awais (Muhammad Awais Asad) — his skills, experience, projects, and professional background. I don't have specific information about this. Feel free to contact him directly at awaisasad20@gmail.com or call +92-332-4255688.",
           source: 'no_answer',
         });
       }
 
+      console.log('=== GEMINI: Successfully answered ===');
       return res.status(200).json({
         reply: geminiResponse,
         source: 'gemini_api',
       });
     } catch (error) {
-      console.error('Gemini API error:', error);
+      console.error('=== GEMINI ERROR ===', error.message);
       return res.status(200).json({
         reply: "I'm a chatbot designed to answer questions about Awais (Muhammad Awais Asad) — his skills, experience, projects, and professional background. I don't have specific information about this. Feel free to contact him directly at awaisasad20@gmail.com or call +92-332-4255688.",
         source: 'no_answer',

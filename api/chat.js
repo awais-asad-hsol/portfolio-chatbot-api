@@ -252,20 +252,29 @@ async function searchCV(userMessage) {
 }
 
 /**
- * Tries to call Gemini API with a specific model and version
- * @param {string} userMessage - The user's message
- * @param {string} apiKey - The Gemini API key
- * @param {string} model - The model name (e.g., 'gemini-pro')
- * @param {string} apiVersion - The API version (e.g., 'v1beta')
- * @param {string|null} context - Optional context/prompt to use instead of userMessage
- * @returns {Promise<Object>} - Result object with success/error
+ * Sanitizes user input to prevent prompt injection
+ * @param {string} message - Raw user message
+ * @returns {string} - Sanitized message safe for prompt interpolation
  */
+function sanitizeForPrompt(message) {
+  return message
+    // Remove common injection prefixes
+    .replace(/^\s*(ignore|forget|disregard|override|bypass)\s+(previous|above|all|prior|earlier|the)\s+/gi, '')
+    // Strip any attempts to close/restart the prompt context
+    .replace(/\[SYSTEM\]|\[INST\]|\[\/INST\]|<\|im_start\|>|<\|im_end\|>/gi, '')
+    // Limit to printable ASCII + common Unicode, strip control characters
+    .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '')
+    .trim();
+}
+
 async function tryGeminiAPICall(userMessage, apiKey, model, apiVersion, context = null) {
   const modelPath = model.startsWith('models/') ? model : `models/${model}`;
-  const API_URL = `https://generativelanguage.googleapis.com/${apiVersion}/${modelPath}:generateContent`;
-  
+  const GEMINI_URL = `https://generativelanguage.googleapis.com/${apiVersion}/${modelPath}:generateContent`;
+
+  const safeMessage = sanitizeForPrompt(userMessage);
+
   // Create a prompt that provides context about Awais
-  let prompt = userMessage;
+  let prompt = safeMessage;
   if (context) {
     prompt = context;
   } else {
@@ -283,12 +292,17 @@ Context about Awais:
 - LinkedIn: https://www.linkedin.com/in/awais-asad
 - GitHub: https://github.com/awais-asad-hsol
 
-User Question: ${userMessage}
+User Question: """${safeMessage}"""
 
 Please answer the question specifically about Awais based on the information provided. If you don't have information about Awais related to this question, say "I don't have specific information about this regarding Awais. Please feel free to contact him directly at awaisasad20@gmail.com for more details."`;
   }
-  
-  const response = await fetch(`${API_URL}?key=${apiKey}`, {
+
+  // Abort after 15 seconds to avoid hanging on slow Gemini responses
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+  const response = await fetch(`${GEMINI_URL}?key=${apiKey}`, {
+    signal: controller.signal,
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -301,6 +315,8 @@ Please answer the question specifically about Awais based on the information pro
       }]
     }),
   });
+
+  clearTimeout(timeoutId);
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
@@ -345,9 +361,7 @@ async function callGeminiAPI(userMessage, apiKey, cvContext = null) {
   // These are the current valid models
   const attempts = [
     { model: 'gemini-2.5-flash', version: 'v1beta' },
-    { model: 'gemini-2.5-flash-lite', version: 'v1beta' },
-    { model: 'gemini-3-flash-preview', version: 'v1beta' },
-    { model: 'gemini-3-pro-preview', version: 'v1beta' },
+    { model: 'gemini-2.5-flash-lite-preview-06-17', version: 'v1beta' },
     { model: 'gemini-1.5-flash', version: 'v1beta' },
     { model: 'gemini-1.5-pro', version: 'v1beta' },
     { model: 'gemini-pro', version: 'v1beta' },
@@ -373,21 +387,9 @@ async function callGeminiAPI(userMessage, apiKey, cvContext = null) {
   for (const attempt of attempts) {
     console.log(`Trying Gemini API with model: ${attempt.model}, version: ${attempt.version}`);
     triedModels.push(`${attempt.model} (${attempt.version})`);
-    
-    // Build context with CV information if available
-    let context = null;
-    if (cvContext) {
-      context = `You are a chatbot answering questions about Muhammad Awais Asad (also known as M Awais Asad or Awais), a Full Stack Software Engineer with 6+ years of experience.
 
-Here is information from Awais's CV:
-${cvContext}
-
-User Question: ${userMessage}
-
-Please answer the question specifically about Awais based on the CV information provided. If the CV doesn't contain relevant information, say "I don't have specific information about this regarding Awais in the available documents. Please feel free to contact him directly at awaisasad20@gmail.com for more details."`;
-    }
-    
-    const result = await tryGeminiAPICall(userMessage, apiKey, attempt.model, attempt.version, context);
+    // cvContext here is the pre-built fullContext string from the handler
+    const result = await tryGeminiAPICall(userMessage, apiKey, attempt.model, attempt.version, cvContext || null);
     
     if (result.success) {
       console.log(`✓ Success with model: ${attempt.model} (${attempt.version})`);
@@ -413,9 +415,7 @@ Please answer the question specifically about Awais based on the CV information 
       // Try the first available model
       for (const modelName of availableModels) {
         console.log(`Trying available model: ${modelName}`);
-        // Build context if available
-        const context = cvContext ? `Context about Awais from CV:\n${cvContext}\n\nUser Question: ${userMessage}\n\nPlease answer specifically about Awais based on the CV context provided.` : null;
-        const result = await tryGeminiAPICall(userMessage, apiKey, modelName, 'v1beta', context);
+        const result = await tryGeminiAPICall(userMessage, apiKey, modelName, 'v1beta', cvContext || null);
         if (result.success) {
           console.log(`✓ Success with available model: ${modelName}`);
           return result.text;
@@ -437,9 +437,20 @@ Please answer the question specifically about Awais based on the CV information 
 /**
  * Main handler function for Vercel serverless function
  */
+// Allowed origins for CORS
+const ALLOWED_ORIGINS = [
+  'https://awais-asad-hsol.github.io',
+  process.env.ALLOWED_ORIGIN, // optional override via env
+].filter(Boolean);
+
 export default async function handler(req, res) {
-  // Set CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  // Set CORS headers - restrict to known origins only
+  const origin = req.headers['origin'];
+  const isAllowed = ALLOWED_ORIGINS.some(o => o === origin) ||
+    (process.env.NODE_ENV === 'development' && /^http:\/\/localhost(:\d+)?$/.test(origin || ''));
+
+  res.setHeader('Access-Control-Allow-Origin', isAllowed ? origin : ALLOWED_ORIGINS[0]);
+  res.setHeader('Vary', 'Origin');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
@@ -505,71 +516,61 @@ export default async function handler(req, res) {
       });
     }
 
-    // Step 2: Search CV PDF if knowledge base doesn't have answer
-    // Only search CV if the question seems to be about Awais
-    console.log('No answer in knowledge base, checking if question is about Awais...');
-    const cvAnswer = await searchCV(message);
-    
-    if (cvAnswer) {
-      return res.status(200).json({
-        reply: cvAnswer,
-        source: 'cv',
-      });
-    }
-    
-    // If CV search didn't find anything, check if it's a general knowledge question
-    // If so, return a polite "I don't know" message instead of using Gemini
-    const lowerMessage = message.toLowerCase().trim();
-    const isGeneralQuestion = /\b(what|who|where|when|why|how)\s+is\s+(pakistan|india|country|city|place|location|definition|meaning|the|a|an)\b/i.test(message) ||
-                             /\bexplain\s+(pakistan|country|general|concept|definition)\b/i.test(message) ||
-                             (!/\b(your|you|awais|muhammad|asad|tell\s+me\s+about\s+your|your\s+)\b/i.test(message) && 
-                              !/\b(skills|experience|education|projects|work|job|company|expertise|specialization|technologies|portfolio|cv|resume|background|career)\b/i.test(message));
-    
-    if (isGeneralQuestion) {
-      return res.status(200).json({
-        reply: "I'm a chatbot designed to answer questions about Awais (Muhammad Awais Asad) - his skills, experience, projects, and professional background. I don't have information about general topics. If you have questions about Awais, feel free to ask! Otherwise, you can contact him directly at awaisasad20@gmail.com.",
-        source: 'no_answer',
-      });
-    }
-
-    // Step 3: If no answer found in knowledge base or CV, try Gemini API with context
+    // Step 2: Not in knowledge base — send full CV to Gemini and let it find the answer
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
       console.error('GEMINI_API_KEY is not set in environment variables');
-      // Return a helpful message instead of error
       return res.status(200).json({
-        reply: "I couldn't find specific information about this in my knowledge base or CV. Please feel free to contact Awais directly at awaisasad20@gmail.com or call +92-332-4255688 for more details.",
+        reply: "I'm a chatbot designed to answer questions about Awais (Muhammad Awais Asad) — his skills, experience, projects, and professional background. Please feel free to contact him directly at awaisasad20@gmail.com or call +92-332-4255688 for more details.",
         source: 'no_answer',
       });
     }
 
-    // Try to get CV content for context
-    let cvContext = null;
+    // Load full CV text for Gemini
+    let cvContent = '';
     try {
-      const cvContent = await loadCVText();
-      if (cvContent && cvContent.length > 0) {
-        // Use relevant parts of CV as context
-        cvContext = cvContent.substring(0, 3000); // Limit context size
-      }
+      const rawCV = await loadCVText();
+      if (rawCV) cvContent = rawCV;
     } catch (error) {
-      console.error('Error loading CV for context:', error);
+      console.error('Error loading CV:', error);
     }
 
-    // Call Gemini API with CV context
-    console.log('No answer in CV, trying Gemini API with context...');
+    const cvPrompt = `You are a portfolio assistant for Muhammad Awais Asad (Awais), a Full Stack Software Engineer.
+
+Your ONLY source of information is the CV below. Do not use any outside knowledge.
+
+Rules:
+- Answer only from the CV content provided
+- Be conversational, warm, and concise
+- If the CV does not contain enough information to answer the question, respond with exactly: ANSWER_NOT_FOUND
+- Never make up or assume information not present in the CV
+
+=== AWAIS'S CV ===
+${cvContent}
+
+User Question: """${sanitizeForPrompt(message)}"""`;
+
+    console.log('Sending full CV to Gemini...');
     try {
-      const geminiResponse = await callGeminiAPI(message, apiKey, cvContext);
-      
+      const geminiResponse = await callGeminiAPI(message, apiKey, cvPrompt);
+
+      // If Gemini couldn't find the answer in the CV, return fallback
+      if (!geminiResponse || geminiResponse.trim() === 'ANSWER_NOT_FOUND') {
+        return res.status(200).json({
+          reply: "I'm a chatbot designed to answer questions about Awais (Muhammad Awais Asad) — his skills, experience, projects, and professional background. I don't have specific information about this. Feel free to contact him directly at awaisasad20@gmail.com or call +92-332-4255688.",
+          source: 'no_answer',
+        });
+      }
+
       return res.status(200).json({
         reply: geminiResponse,
         source: 'gemini_api',
       });
     } catch (error) {
       console.error('Gemini API error:', error);
-      // If Gemini also fails, return a helpful message
       return res.status(200).json({
-        reply: "I couldn't find specific information about this regarding Awais in my knowledge base, CV, or through AI assistance. Please feel free to contact Awais directly at awaisasad20@gmail.com or call +92-332-4255688 for more details.",
+        reply: "I'm a chatbot designed to answer questions about Awais (Muhammad Awais Asad) — his skills, experience, projects, and professional background. I don't have specific information about this. Feel free to contact him directly at awaisasad20@gmail.com or call +92-332-4255688.",
         source: 'no_answer',
       });
     }

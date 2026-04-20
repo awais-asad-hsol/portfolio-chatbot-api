@@ -3,7 +3,7 @@
     {
       "id": 1,
       "question": "What is your name?",
-      "keywords": ["name", "who are you", "introduce", "what's your name", "who is awais", "what is awais", "tell me about awais", "who is muhammad awais", "what is muhammad awais asad"],
+      "keywords": ["your name", "who are you", "introduce", "what's your name", "who is awais", "what is awais", "tell me about awais", "who is muhammad awais", "what is muhammad awais asad"],
       "answer": "My name is Muhammad Awais Asad. You can call me Awais. I'm a Full Stack Developer specializing in Laravel, Vue.js, Node.js, AI integrations and modern web technologies."
     },
     {
@@ -63,7 +63,7 @@
     {
       "id": 11,
       "question": "What is your current position?",
-      "keywords": ["current job", "current position", "where do you work", "current role", "current company"],
+      "keywords": ["current job", "current position", "where do you work", "current role", "current company", "currently working", "where are you working", "working now", "working currently", "where do you currently work"],
       "answer": "I'm currently working as a Senior Software Developer at Heuristic Sol Pvt Ltd in Lahore, since August 2022. I'm leading the development of Version 2 of a platform, working on SSO solutions, and building modern applications with Laravel, Vue.js, and Inertia.js."
     },
     {

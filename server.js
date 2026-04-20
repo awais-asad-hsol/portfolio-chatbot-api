@@ -19,8 +19,8 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Rate limiting - apply to all routes
-app.use(rateLimitMiddleware);
+// Note: rate limiting is handled inside the handler (api/chat.js) to mirror
+// the Vercel serverless environment. Do not add it here to avoid double-counting.
 
 // Convert Express req/res to Vercel format and handle response
 async function handleRequest(req, res) {

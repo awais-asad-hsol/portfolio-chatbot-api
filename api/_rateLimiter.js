@@ -17,21 +17,33 @@ async function initRateLimiter() {
       rateLimiter = rateLimiterModule;
       return rateLimiter;
     } catch (error) {
-      // Fallback: create simple rate limiter
-      console.warn('Rate limiter from utils not available, using fallback:', error.message);
+      // Fallback: rate limiter unavailable — log clearly and apply a conservative limit
+      console.error('CRITICAL: Rate limiter module failed to load. Applying conservative fallback.', error.message);
+      const fallbackCounts = new Map();
       rateLimiter = {
         getClientIP: (req) => {
-          return req.headers['x-forwarded-for']?.split(',')[0]?.trim() || 
-                 req.headers['x-real-ip'] || 
-                 req.connection?.remoteAddress || 
+          return req.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
+                 req.headers['x-real-ip'] ||
+                 req.connection?.remoteAddress ||
                  'unknown';
         },
-        checkRateLimitForIP: () => ({ 
-          allowed: true, 
-          remaining: 999, 
-          resetAt: new Date(), 
-          message: null 
-        })
+        checkRateLimitForIP: (ip) => {
+          const now = Date.now();
+          const entry = fallbackCounts.get(ip) || { count: 0, windowStart: now };
+          if (now - entry.windowStart > 60000) {
+            entry.count = 0;
+            entry.windowStart = now;
+          }
+          entry.count++;
+          fallbackCounts.set(ip, entry);
+          const allowed = entry.count <= 10;
+          return {
+            allowed,
+            remaining: Math.max(0, 10 - entry.count),
+            resetAt: new Date(entry.windowStart + 60000),
+            message: allowed ? null : 'Rate limit exceeded (fallback limiter).'
+          };
+        }
       };
       return rateLimiter;
     }

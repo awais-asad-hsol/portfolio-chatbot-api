@@ -87,7 +87,7 @@
     {
       "id": 15,
       "question": "What projects have you worked on?",
-      "keywords": ["projects", "project", "work", "applications built", "portfolio projects", "what have you built", "e-kyc", "kyc", "ekyc", "taxi", "chauffeur", "pos system", "what projects", "tell me about your projects"],
+      "keywords": ["projects", "project", "applications built", "portfolio projects", "what have you built", "e-kyc", "kyc", "ekyc", "taxi", "chauffeur", "pos system", "what projects", "tell me about your projects", "what have you worked on"],
       "answer": "I've worked on various projects including E-KYC System (Backend Development), Chauffeur Taxi Booking System (Full Stack Development), POS System (Full Stack Development), SSO platform with multi-portal support, and many other web applications. I've completed 50+ projects serving over 100 happy clients."
     },
     {
@@ -99,7 +99,7 @@
     {
       "id": 17,
       "question": "Do you do freelancing?",
-      "keywords": ["freelance", "freelancing", "available", "hire", "can you work", "freelancer"],
+      "keywords": ["freelance", "freelancing", "available", "hire", "can you work", "freelancer", "open to work", "open for work", "available for work", "available for hire", "looking for work", "is he available", "is he open"],
       "answer": "Yes, I'm available for freelancing! With over 6 years of professional experience, I specialize in delivering high-quality web development services. Whether you need a complete project build or help meeting deadlines, I'm ready to assist. You can contact me at awaisasad20@gmail.com to discuss your project."
     },
     {

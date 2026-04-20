@@ -21,7 +21,7 @@
     {
       "id": 4,
       "question": "Where are you located?",
-      "keywords": ["location", "address", "where are you", "where do you live", "location", "city"],
+      "keywords": ["location", "address", "where do you live", "city", "where are you located", "where are you from", "your address"],
       "answer": "I'm located in Lahore, Pakistan. My address is Building no 88, Sector C, Askari 11, Lahore, Pakistan."
     },
     {
@@ -87,7 +87,7 @@
     {
       "id": 15,
       "question": "What projects have you worked on?",
-      "keywords": ["projects", "work", "applications built", "portfolio projects", "what have you built"],
+      "keywords": ["projects", "project", "work", "applications built", "portfolio projects", "what have you built", "e-kyc", "kyc", "ekyc", "taxi", "chauffeur", "pos system", "what projects", "tell me about your projects"],
       "answer": "I've worked on various projects including E-KYC System (Backend Development), Chauffeur Taxi Booking System (Full Stack Development), POS System (Full Stack Development), SSO platform with multi-portal support, and many other web applications. I've completed 50+ projects serving over 100 happy clients."
     },
     {
@@ -147,7 +147,7 @@
     {
       "id": 25,
       "question": "How can I hire you?",
-      "keywords": ["hire", "hire you", "work together", "collaborate", "project", "contract"],
+      "keywords": ["hire", "hire you", "work together", "collaborate", "contract", "want to hire", "how to hire"],
       "answer": "I'm available for freelancing and collaboration! You can reach out to me via email at awaisasad20@gmail.com or call me at +92-332-4255688. I'd be happy to discuss your project requirements and how I can help you achieve your goals."
     },
     {

@@ -565,7 +565,7 @@ User Question: """${sanitizeForPrompt(message)}"""`;
       console.log('Raw response:', geminiResponse);
 
       // If Gemini couldn't find the answer in the CV, return fallback
-      if (!geminiResponse || geminiResponse.trim() === 'ANSWER_NOT_FOUND') {
+      if (!geminiResponse || geminiResponse.includes('ANSWER_NOT_FOUND')) {
         console.log('=== GEMINI: Returned ANSWER_NOT_FOUND — using fallback ===');
         return res.status(200).json({
           reply: "I'm a chatbot designed to answer questions about Awais (Muhammad Awais Asad) — his skills, experience, projects, and professional background. I don't have specific information about this. Feel free to contact him directly at awaisasad20@gmail.com or call +92-332-4255688.",

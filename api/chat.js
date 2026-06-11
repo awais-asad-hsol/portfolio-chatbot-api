@@ -52,19 +52,41 @@ async function loadCVText() {
  * @param {string} userMessage - The user's message
  * @returns {string|null} - The answer if found, null otherwise
  */
+// Stop words ignored when checking whether a message contains specific
+// terms that a matched knowledge-base entry does not cover
+const COVERAGE_STOP_WORDS = new Set([
+  'the', 'and', 'for', 'with', 'about', 'tell', 'what', 'who', 'where',
+  'when', 'why', 'how', 'much', 'many', 'your', 'you', 'are', 'have',
+  'has', 'had', 'does', 'did', 'can', 'will', 'his', 'her', 'their',
+  'awais', 'asad', 'muhammad', 'please', 'know', 'years', 'year'
+]);
+
+/**
+ * Returns true if the message contains meaningful words that are NOT
+ * covered by the matched item's keywords or question — i.e. the user is
+ * asking something more specific than the canned answer covers.
+ */
+function hasUncoveredTerms(lowerMessage, item) {
+  const covered = (item.keywords.join(' ') + ' ' + (item.question || '')).toLowerCase();
+  const words = lowerMessage.split(/[^a-z0-9+#.]+/).filter(w =>
+    w.length > 2 && !COVERAGE_STOP_WORDS.has(w)
+  );
+  return words.some(w => !covered.includes(w));
+}
+
 function searchKnowledgeBase(userMessage) {
   const lowerMessage = userMessage.toLowerCase().trim();
-  
+
   // Normalize variations of common words
   const normalizedMessage = lowerMessage
     .replace(/\bexpertise\b/g, 'expertise specialization skills')
     .replace(/\bspecialization\b/g, 'specialization expertise skills')
     .replace(/\bexpert\b/g, 'expertise specialization skills')
     .replace(/\bwhat can you do\b/g, 'skills technologies');
-  
+
   // Extract meaningful search terms (words longer than 2 characters)
   const words = lowerMessage.split(/\s+/).filter(term => term.length > 2);
-  
+
   // Try exact keyword matches first (most specific)
   for (const item of knowledgeBase.items) {
     // Check if any keyword matches (whole word match, not substring)
@@ -74,8 +96,15 @@ function searchKnowledgeBase(userMessage) {
       const keywordPattern = new RegExp(`\\b${lowerKeyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
       return keywordPattern.test(lowerMessage) || keywordPattern.test(normalizedMessage);
     });
-    
+
     if (matchedKeyword) {
+      // If the message asks something more specific than this entry covers
+      // (e.g. "how much experience in SSO" matching the generic experience
+      // entry), skip the canned answer and let Gemini answer from the CV.
+      if (hasUncoveredTerms(lowerMessage, item)) {
+        console.log(`KB item ${item.id} matched but message has uncovered terms — deferring to Gemini`);
+        return null;
+      }
       return item.answer;
     }
     
@@ -125,133 +154,6 @@ function searchKnowledgeBase(userMessage) {
 }
 
 /**
- * Checks if a question is about Awais or his professional background
- * @param {string} userMessage - The user's message
- * @returns {boolean} - True if question is about Awais
- */
-function isQuestionAboutAwais(userMessage) {
-  const lowerMessage = userMessage.toLowerCase().trim();
-  
-  // Common patterns that indicate questions about Awais
-  const aboutAwaisPatterns = [
-    /\b(your|you|yourself|awais|muhammad|asad)\b/,
-    /\b(what|who|where|when|how)\s+(are|is|do|did|can|have|will)\s+(you|your|awais)\b/,
-    /\b(tell\s+me\s+about|describe|explain)\s+(your|you|awais)\b/,
-    /\b(your|you)\s+(name|email|phone|skills|experience|education|projects|work|job|company|expertise|specialization|background)\b/,
-    /\b(what|tell\s+me)\s+(about|are)\s+(your|you)\b/,
-  ];
-  
-  // Check if question contains patterns about Awais
-  const isAboutAwais = aboutAwaisPatterns.some(pattern => pattern.test(lowerMessage));
-  
-  // Also check for professional/work-related terms that would be about Awais
-  const professionalTerms = [
-    'skills', 'experience', 'education', 'projects', 'work', 'job', 'company',
-    'expertise', 'specialization', 'technologies', 'languages', 'frameworks',
-    'portfolio', 'cv', 'resume', 'background', 'career', 'qualifications'
-  ];
-  
-  const hasProfessionalTerm = professionalTerms.some(term => lowerMessage.includes(term));
-  
-  // Exclude general knowledge questions
-  const generalKnowledgePatterns = [
-    /\bwhat\s+is\s+(pakistan|india|country|city|place|location|definition|meaning)\b/i,
-    /\bwho\s+is\s+(not\s+awais|not\s+you|someone\s+else)\b/i,
-    /\bexplain\s+(pakistan|country|general\s+concept)\b/i,
-  ];
-  
-  const isGeneralKnowledge = generalKnowledgePatterns.some(pattern => pattern.test(lowerMessage));
-  
-  // Return true only if it's about Awais AND not general knowledge
-  return (isAboutAwais || hasProfessionalTerm) && !isGeneralKnowledge;
-}
-
-/**
- * Searches the CV PDF for relevant information
- * @param {string} userMessage - The user's message
- * @returns {Promise<string|null>} - Relevant excerpt from CV or null
- */
-async function searchCV(userMessage) {
-  try {
-    // First check if the question is actually about Awais
-    if (!isQuestionAboutAwais(userMessage)) {
-      console.log('Question is not about Awais, skipping CV search');
-      return null;
-    }
-    
-    const cvContent = await loadCVText();
-    if (!cvContent) {
-      return null;
-    }
-    
-    const lowerMessage = userMessage.toLowerCase().trim();
-    
-    // Extract meaningful keywords (exclude common words and very short words)
-    const stopWords = ['the', 'is', 'at', 'which', 'on', 'a', 'an', 'as', 'are', 'was', 'were', 'been', 'be', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'should', 'could', 'may', 'might', 'must', 'can', 'this', 'that', 'these', 'those', 'i', 'you', 'he', 'she', 'it', 'we', 'they', 'what', 'where', 'when', 'why', 'how', 'about', 'tell', 'me'];
-    const keywords = lowerMessage
-      .split(/\s+/)
-      .filter(term => term.length > 3 && !stopWords.includes(term.toLowerCase()));
-    
-    if (keywords.length === 0) {
-      return null;
-    }
-    
-    // Look for sections that contain multiple relevant keywords
-    // Split CV into meaningful sections (by headers or double newlines)
-    const sections = cvContent.split(/\n\s*\n/).filter(section => section.trim().length > 50);
-    
-    let bestMatch = null;
-    let bestMatchScore = 0;
-    
-    for (const section of sections) {
-      const lowerSection = section.toLowerCase();
-      
-      // Count how many keywords match in this section
-      const matches = keywords.filter(keyword => lowerSection.includes(keyword.toLowerCase()));
-      const matchScore = matches.length / keywords.length; // Percentage of keywords matched
-      
-      // Require at least 50% of keywords to match, or at least 2 keywords
-      if (matchScore >= 0.5 || matches.length >= 2) {
-        if (matchScore > bestMatchScore) {
-          bestMatchScore = matchScore;
-          bestMatch = section.trim();
-        }
-      }
-    }
-    
-    // If we found a good match, return it
-    if (bestMatch && bestMatchScore > 0) {
-      // Return a clean excerpt (limit to 400 characters for better responses)
-      const excerpt = bestMatch.substring(0, 400);
-      return excerpt + (excerpt.length < bestMatch.length ? '...' : '');
-    }
-    
-    // If no good section match, try to find specific lines with multiple keywords
-    const lines = cvContent.split('\n').filter(line => line.trim().length > 20);
-    const relevantLines = [];
-    
-    for (const line of lines) {
-      const lowerLine = line.toLowerCase();
-      const matches = keywords.filter(keyword => lowerLine.includes(keyword.toLowerCase()));
-      // Require at least 2 keywords or 50% match
-      if (matches.length >= 2 || (matches.length / keywords.length) >= 0.5) {
-        relevantLines.push(line.trim());
-        if (relevantLines.length >= 3) break; // Limit to 3 most relevant lines
-      }
-    }
-    
-    if (relevantLines.length > 0) {
-      return relevantLines.join(' ').substring(0, 400);
-    }
-    
-    return null;
-  } catch (error) {
-    console.error('Error searching CV:', error);
-    return null;
-  }
-}
-
-/**
  * Sanitizes user input to prevent prompt injection
  * @param {string} message - Raw user message
  * @returns {string} - Sanitized message safe for prompt interpolation
@@ -279,13 +181,13 @@ async function tryGeminiAPICall(userMessage, apiKey, model, apiVersion, context 
     prompt = context;
   } else {
     // Default context: Answer as/about Awais
-    prompt = `You are a chatbot answering questions about Muhammad Awais Asad (also known as M Awais Asad or Awais), a Full Stack Software Engineer with 6+ years of experience specializing in Laravel, Vue.js, Node.js, and AI-powered systems.
+    prompt = `You are a chatbot answering questions about Muhammad Awais Asad (also known as M Awais Asad or Awais), a Lead Full-Stack Engineer with 7+ years of experience specializing in Laravel, Vue.js, Node.js, and AI-powered systems.
 
 Context about Awais:
 - Name: Muhammad Awais Asad (M Awais Asad)
-- Title: Senior Full-Stack Engineer
-- Experience: 6+ years
-- Specializations: Laravel, Vue.js, Node.js, AI-Powered Systems
+- Title: Lead Full-Stack Engineer / Tech Lead
+- Experience: 7+ years
+- Specializations: Laravel, Vue.js, Node.js, SSO & Identity Management, AI-Powered Systems
 - Location: Lahore, Pakistan
 - Email: awaisasad20@gmail.com
 - Phone: +92-332-4255688
@@ -357,17 +259,12 @@ async function listAvailableModels(apiKey, apiVersion = 'v1beta') {
 }
 
 async function callGeminiAPI(userMessage, apiKey, cvContext = null) {
-  // Try newer model names first (as of 2024)
-  // These are the current valid models
+  // Current models, newest first. Keep this list short — each failed
+  // attempt can cost up to 15s and the function has a 30s budget.
   const attempts = [
     { model: 'gemini-2.5-flash', version: 'v1beta' },
-    { model: 'gemini-2.5-flash-lite-preview-06-17', version: 'v1beta' },
-    { model: 'gemini-1.5-flash', version: 'v1beta' },
-    { model: 'gemini-1.5-pro', version: 'v1beta' },
-    { model: 'gemini-pro', version: 'v1beta' },
-    // Try v1 as fallback
-    { model: 'gemini-2.5-flash', version: 'v1' },
-    { model: 'gemini-1.5-flash', version: 'v1' },
+    { model: 'gemini-2.5-flash-lite', version: 'v1beta' },
+    { model: 'gemini-2.0-flash', version: 'v1beta' },
   ];
 
   // Check if user specified a custom model

@@ -58,7 +58,9 @@ const COVERAGE_STOP_WORDS = new Set([
   'the', 'and', 'for', 'with', 'about', 'tell', 'what', 'who', 'where',
   'when', 'why', 'how', 'much', 'many', 'your', 'you', 'are', 'have',
   'has', 'had', 'does', 'did', 'can', 'will', 'his', 'her', 'their',
-  'awais', 'asad', 'muhammad', 'please', 'know', 'years', 'year'
+  'awais', 'asad', 'muhammad', 'please', 'know', 'years', 'year',
+  // contraction forms after punctuation stripping ("what's" -> "whats")
+  'whats', 'whos', 'hows', 'wheres', 'whens', 'youre', 'isnt', 'dont', 'its'
 ]);
 
 /**
@@ -127,29 +129,36 @@ function searchKnowledgeBase(userMessage) {
     }
   }
   
-  // More strict fuzzy matching - only match whole words, not substrings
-  // Only if no exact match found
-  const searchTerms = words.filter(term => term.length > 3); // Only words longer than 3 chars
-  
+  // More strict fuzzy matching - only match whole words, not substrings.
+  // Only meaningful terms count: filler words like "your", "with", "what's"
+  // must never drive a match (they caused e.g. the SSO question to return
+  // the freelancing answer).
+  const searchTerms = words
+    .map(term => term.replace(/[^a-z0-9+#.]/gi, '')) // strip punctuation ("sso?" -> "sso")
+    .filter(term => term.length > 2 && !COVERAGE_STOP_WORDS.has(term));
+
   if (searchTerms.length > 0) {
     for (const item of knowledgeBase.items) {
       const lowerAnswer = item.answer.toLowerCase();
-      
+
       // Match whole words only (use word boundaries to avoid substring matches)
       const matches = searchTerms.filter(term => {
         // Use word boundary to match whole words only
         const termPattern = new RegExp(`\\b${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
         return termPattern.test(lowerAnswer);
       });
-      
-      // Require at least 2 matching words AND at least 50% match rate
-      const matchRate = matches.length / searchTerms.length;
-      if (matches.length >= 2 && matchRate >= 0.5) {
+
+      // Require ALL meaningful terms to appear in the answer (and at least 2),
+      // AND the entry's keywords/question must cover the message. Otherwise a
+      // specific question (e.g. "experience with SSO") would get a generic
+      // canned reply instead of a focused CV-based answer from Gemini.
+      if (matches.length >= 2 && matches.length === searchTerms.length &&
+          !hasUncoveredTerms(lowerMessage, item)) {
         return item.answer;
       }
     }
   }
-  
+
   return null;
 }
 
